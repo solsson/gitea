@@ -77,13 +77,16 @@ const (
 
 // DiffLine represents a line difference in a DiffSection.
 type DiffLine struct {
-	LeftIdx     int // line number, 1-based
-	RightIdx    int // line number, 1-based
-	Match       int // the diff matched index. -1: no match. 0: plain and no need to match. >0: for add/del, "Lines" slice index of the other side
-	Type        DiffLineType
-	Content     string
-	Comments    issues_model.CommentList // related PR code comments
-	SectionInfo *DiffLineSectionInfo
+	LeftIdx        int // line number, 1-based
+	RightIdx       int // line number, 1-based
+	Match          int // the diff matched index. -1: no match. 0: plain and no need to match. >0: for add/del, "Lines" slice index of the other side
+	Type           DiffLineType
+	Content        string
+	Comments       issues_model.CommentList // related PR code comments
+	SectionInfo    *DiffLineSectionInfo
+	BlameCommitSHA string
+	BlameAuthor    string
+	BlameDate      string
 }
 
 // DiffLineSectionInfo represents diff line section meta data

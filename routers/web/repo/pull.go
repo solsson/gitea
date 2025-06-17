@@ -9,6 +9,7 @@ import (
 	"errors"
 	"fmt"
 	"html"
+	"io"
 	"net/http"
 	"strconv"
 	"strings"
@@ -791,6 +792,26 @@ func viewPullFiles(ctx *context.Context, specifiedStartCommit, specifiedEndCommi
 		for _, section := range file.Sections {
 			for _, line := range section.Lines {
 				allComments = append(allComments, line.Comments...)
+				if line.Type == gitdiff.DiffLineAdd {
+					blameReader, err := git.CreateBlameReader(ctx, ctx.Repo.GitRepo.Path, endCommitID, file.Name)
+					if err != nil {
+						log.Error("CreateBlameReader failed for %s@%s:%s: %v", ctx.Repo.GitRepo.Path, endCommitID, file.Name, err)
+						// Continue without blame info for this line
+						continue
+					}
+					blamePart, err := blameReader.NextPart()
+					if err != nil && err != io.EOF {
+						log.Error("blameReader.NextPart failed for %s@%s:%s: %v", ctx.Repo.GitRepo.Path, endCommitID, file.Name, err)
+						// Continue without blame info for this line
+						continue
+					}
+					if blamePart != nil && blamePart.Commit != nil {
+						line.BlameCommitSHA = blamePart.Commit.ID.String()
+						line.BlameAuthor = blamePart.Commit.Author.Name
+						line.BlameDate = blamePart.Commit.Author.When.Format("2006-01-02")
+					}
+					blameReader.Close()
+				}
 			}
 		}
 	}
