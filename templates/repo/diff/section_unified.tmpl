@@ -59,6 +59,11 @@
 						</button>
 					{{- end -}}
 					{{- template "repo/diff/section_code" dict "diff" $inlineDiff -}}
+					{{if and (eq $line.Type 2) $line.BlameCommitSHA}}
+						<span class="diff-blame-info tw-ml-2 tw-text-xs tw-text-gray-500">
+							{{$line.BlameAuthor}} &middot; <a href="{{$repoLink}}/commit/{{$line.BlameCommitSHA}}">{{ShortSha $line.BlameCommitSHA}}</a> &middot; {{$line.BlameDate}}
+						</span>
+					{{end}}
 				</td>
 			{{end}}
 		</tr>
